@@ -1,0 +1,69 @@
+
+.navbar-container {
+    position: relative;
+}
+
+.navbar-container .navbar-img {
+    width: 100%;
+    height: 200px;
+    background-image: url("./../image/top-navbar-pizza.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;    
+    opacity: .6;
+    
+}
+
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: 65px;
+
+}
+
+
+
+.v-effect-link {
+    width: 100%;
+    list-style-type: none;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+    font-size: x-large;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+  }
+  .v-effect-link li {
+    display: inline-block;
+    min-width: 5em;
+    margin: 0 0.5em;
+  }
+  .v-effect-link a {
+    text-decoration: none;
+    display: block;
+    font-family:Arial;
+    position: relative;
+    color: white;
+    padding:.5em 0
+  }
+  .v-effect-link a:hover {
+    color: #c69f73;
+  }
+  
+  .v-effect-link a:hover:before {
+    left: 0;
+    width: 100%;
+  }
+  .v-effect-link a:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: .5px;
+    background-color: #c69f73;
+    bottom: calc(-1px);
+    right: 0;
+    transition: all 0.3s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  }
+  
