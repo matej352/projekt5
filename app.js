@@ -1,6 +1,9 @@
 const express = require('express');
 const path = require('path');
 
+const pizzas = require('./database/pizzas.js')
+
+
 const app = express();
 
 
@@ -16,12 +19,20 @@ const PORT = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 3000
 
 //routes
 app.get('/', (req, res) => {
-
 	res.redirect('home');
 });
 
 app.get('/home', async function (req, res) {
 	res.render('home');
+});
+
+app.get('/menu', async function (req, res) {
+
+	//console.log(pizzas.pizzas)
+
+	res.render('menu', {
+		pizzas: pizzas.pizzas,
+	});
 });
 
 
