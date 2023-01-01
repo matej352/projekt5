@@ -86,6 +86,7 @@ app.get("/snaps", function (req, res) {
     let files = fse.readdirSync(UPLOAD_PATH);
     //files = files.reverse().slice(0, 10);
     console.log("In", UPLOAD_PATH, "there are", files);
+	res.setHeader('content-type', 'text/plain');
     res.json({
         files
     });
