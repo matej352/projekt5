@@ -50,7 +50,6 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-   
     event.respondWith(
         caches
             .match(event.request)
@@ -82,7 +81,6 @@ self.addEventListener("fetch", (event) => {
     );
 });
 
-/*
 self.addEventListener('sync', function (event) {
     console.log('Background sync!', event);
     if (event.tag === 'sync-snaps') {
@@ -122,4 +120,4 @@ let syncSnaps = async function () {
                     });
             })
         });
-} */
+}
