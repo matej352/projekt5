@@ -48,7 +48,6 @@ app.get('/not-found', async function (req, res) {
 
 
 
-// potrebno za VER05+
 const UPLOAD_PATH = path.join(__dirname, "public", "uploads");
 var uploadSnaps = multer({
     storage:  multer.diskStorage({
@@ -76,7 +75,6 @@ app.post("/saveSnap",  function (req, res) {
         } else {
             console.log(req.body);
             res.json({ success: true, id: req.body.id });
-            //if (VERSION==="06") await sendPushNotifications(req.body.title);
         }
     });
 });
@@ -91,7 +89,6 @@ app.get("/snaps", function (req, res) {
         files
     });
 });
-// /potrebno za VER05+
 
 
 
