@@ -87,7 +87,9 @@ app.get("/snaps", function (req, res) {
     //files = files.reverse().slice(0, 10);
     console.log("In", UPLOAD_PATH, "there are", files);
 	res.setHeader('content-type', 'application/json');
-    res.send(JSON.stringify({files}));
+    res.json({
+        files
+    });
 });
 // /potrebno za VER05+
 
