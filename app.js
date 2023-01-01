@@ -48,7 +48,6 @@ app.get('/not-found', async function (req, res) {
 
 
 
-/*
 const UPLOAD_PATH = path.join(__dirname, "public", "uploads");
 var uploadSnaps = multer({
     storage:  multer.diskStorage({
@@ -93,7 +92,6 @@ app.get("/snaps", function (req, res) {
 
 
 
-*/
 
 
 
