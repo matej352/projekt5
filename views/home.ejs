@@ -9,10 +9,42 @@
             <%- include('./shared/top-navbar.ejs') %>
         </header>
 
-        <main style=" height: 400px; display: flex; justify-content: center; align-items: center;">
+        <main style=" display: flex; justify-content: center; align-items: center;">
 
             <p style="    font-family: cursive;
            font-size: 50px;">Pizza is our life</p>
+
+
+            <div id="snapPhoto" class="d-flex flex-column align-items-center" style="    margin-top: 70px;
+            padding-bottom: 50px;">
+                <h3>Take photo of you while eating our pizza and join into our giveaway!</h3>
+                <div id="beforeSnap" class="d-flex flex-column align-items-center">
+                    <video id="player" width="100%" autoplay></video>
+                    <button class="btn btn-primary mt-2" id="btnSnap">
+                        <i class="bi bi-camera"></i>
+                        Snap
+                    </button>
+                </div>
+                <div id="afterSnap" class="d-none">
+                    <canvas id="cnvFood"></canvas>
+                    <input id="snapName" type="text" class="form-control mt-2" placeholder="give it a name" />
+                    <button class="btn btn-success" id="btnUpload">
+                        <i class="bi bi-cloud-upload"></i>
+                        Upload
+                    </button>
+                </div>
+            </div>
+
+            <div> <p style="    font-family: cursive;
+                font-size: 50px;">Check out others photos</p></div>
+            <div id="snaps">
+                <template id="snapTemplate">
+                  <div class="d-flex flex-column align-items-center p-1 shadow p-3 mb-2 bg-white rounded">
+                    <img class="img-fluid" src="tbd"/>
+                    <h3>title</h3>
+                  </div>
+                </template>
+              </div>
 
         </main>
 
@@ -20,6 +52,132 @@
             navigator.serviceWorker.register('/sw.js')
                 .then(reg => console.log('SW registered!', reg))
                 .catch(err => console.error('Error registering service worker', err));
+
+            fetch("/snaps")
+                .then((res) => {
+                    console.log("res", res)
+                    if (res.ok) {
+                        res.json()
+                            .then((data) => {
+                                console.log("data", data)
+                                data.files.forEach((fileName) => {
+                                    console.log("appending", fileName)
+                                    let snapsDiv = document.querySelector("#snaps");
+                                    let template = document.querySelector('#snapTemplate');
+                                    var clone = template.content.cloneNode(true);
+                                    let img = clone.querySelector("img");
+                                    img.src = "/uploads/" + fileName;
+                                    let title = clone.querySelector("h3");
+                                    title.textContent = fileName.substring(24).replaceAll("_", " ").replaceAll(".png", "");
+                                    snapsDiv.appendChild(clone);
+                                });
+                            })
+                    }
+                }).catch(err => {
+                    console.log(err);
+                })
+        </script>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous">
+            </script>
+
+        <script type="module">
+            import {
+                get,
+                set,
+            } from "https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm";
+
+            let player = document.getElementById("player");
+            let canvas = document.getElementById("cnvFood");
+            let beforeSnap = document.getElementById("beforeSnap");
+            let afterSnap = document.getElementById("afterSnap");
+            let snapName = document.getElementById("snapName");
+            let startCapture = function () {
+                beforeSnap.classList.remove("d-none");
+                beforeSnap.classList.add("d-flex", "flex-column", "align-items-center");
+                afterSnap.classList.remove("d-flex", "flex-column", "align-items-center");
+                afterSnap.classList.add("d-none");
+                if (!("mediaDevices" in navigator)) {
+                    // fallback to file upload button, ili sl.
+                    // vidjet i custom API-je: webkitGetUserMedia i mozGetUserMedia
+                } else {
+                    navigator.mediaDevices
+                        .getUserMedia({ video: true, audio: false })
+                        .then((stream) => {
+                            player.srcObject = stream;
+                        })
+                        .catch((err) => {
+                            alert("Media stream not working");
+                            console.log(err);
+                        });
+                }
+            };
+            startCapture();
+            let stopCapture = function () {
+                afterSnap.classList.remove("d-none");
+                afterSnap.classList.add("d-flex", "flex-column", "align-items-center");
+                beforeSnap.classList.remove("d-flex", "flex-column", "align-items-center");
+                beforeSnap.classList.add("d-none");
+                player.srcObject.getVideoTracks().forEach(function (track) {
+                    track.stop();
+                });
+            }
+            document
+                .getElementById("btnSnap")
+                .addEventListener("click", function (event) {
+                    canvas.width = player.getBoundingClientRect().width;
+                    canvas.height = player.getBoundingClientRect().height;
+                    canvas
+                        .getContext("2d")
+                        .drawImage(player, 0, 0, canvas.width, canvas.height);
+                    stopCapture();
+                });
+            document
+                .getElementById("btnUpload")
+                .addEventListener("click", function (event) {
+                    event.preventDefault();
+                    if (!snapName.value.trim()) {
+                        alert("Give it a cathcy name!");
+                        return false;
+                    }
+                    if (
+                        "serviceWorker" in navigator &&
+                        "SyncManager" in window
+                    ) {
+                        let url = canvas.toDataURL();
+                        fetch(url)
+                            .then((res) => res.blob())
+                            .then((blob) => {
+                                let ts = new Date().toISOString();
+                                let id = ts + snapName.value.replace(/\s/g, '_');  // ws->_
+                                set(id, {
+                                    id,
+                                    ts,
+                                    title: snapName.value,
+                                    image: blob
+                                });
+                                return navigator.serviceWorker.ready;
+                            })
+                            .then((swRegistration) => {
+                                return swRegistration.sync.register(
+                                    "sync-snaps"
+                                );
+                            })
+                            .then(() => {
+                                console.log("Queued for sync");
+                                startCapture();
+                            })
+                            .catch((err) => {
+                                console.log(error);
+                            });
+                    } else {
+                        // fallback
+                        // pokusati poslati, pa ako ima mreze onda dobro...
+                        alert("TODO - vaš preglednik ne podržava bckg sync...");
+                    }
+                });
         </script>
 
 
